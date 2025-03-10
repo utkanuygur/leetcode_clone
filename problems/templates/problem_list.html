@@ -1,0 +1,221 @@
+{% extends 'base.html' %}
+{% load problem_extras %}
+{% block content %}
+
+<div class="flex flex-col h-screen bg-gray-900 text-gray-300">
+    <!-- Top Navigation -->
+    <div class="pt-4 px-4 pb-2 flex items-center space-x-4 overflow-x-auto">
+        {% for category in categories %}
+        <div class="flex items-center space-x-2 min-w-max">
+            <span>{{ category.name }}</span>
+            <span class="text-gray-500 text-sm">{{ category.count }}</span>
+        </div>
+        {% endfor %}
+        <button class="text-gray-500 flex items-center">
+            Expand <i class="fas fa-chevron-down text-sm"></i>
+        </button>
+    </div>
+    
+    <!-- Tab Navigation -->
+    <div class="px-4 py-2 flex space-x-4 overflow-x-auto">
+        <a href="{% url 'problem_list' %}" class="px-4 py-2 rounded-full flex items-center space-x-2 bg-white text-gray-900">
+            <span>All Topics</span>
+        </a>
+        <a href="{% url 'problem_list' %}?category=Algorithms" class="px-4 py-2 rounded-full flex items-center space-x-2 bg-gray-800 text-gray-300 hover:bg-gray-700">
+            <i class="fas fa-code text-sm mr-1"></i>
+            <span>Algorithms</span>
+        </a>
+        <a href="{% url 'problem_list' %}?category=Database" class="px-4 py-2 rounded-full flex items-center space-x-2 bg-gray-800 text-gray-300 hover:bg-gray-700">
+            <i class="fas fa-database text-sm mr-1"></i>
+            <span>Database</span>
+        </a>
+        <a href="{% url 'problem_list' %}?category=Shell" class="px-4 py-2 rounded-full flex items-center space-x-2 bg-gray-800 text-gray-300 hover:bg-gray-700">
+            <i class="fas fa-terminal text-sm mr-1"></i>
+            <span>Shell</span>
+        </a>
+        <a href="{% url 'problem_list' %}?category=Concurrency" class="px-4 py-2 rounded-full flex items-center space-x-2 bg-gray-800 text-gray-300 hover:bg-gray-700">
+            <i class="fas fa-desktop text-sm mr-1"></i>
+            <span>Concurrency</span>
+        </a>
+        <a href="{% url 'problem_list' %}?category=JavaScript" class="px-4 py-2 rounded-full flex items-center space-x-2 bg-gray-800 text-gray-300 hover:bg-gray-700">
+            <div class="text-yellow-500 font-bold mr-1">JS</div>
+            <span>JavaScript</span>
+        </a>
+    </div>
+    
+    <!-- Filters -->
+    <div class="px-4 py-2 flex space-x-4">
+        <div class="relative">
+            <button class="px-4 py-2 bg-gray-800 rounded-md flex items-center space-x-2">
+                <span>Lists</span>
+                <i class="fas fa-chevron-down text-sm"></i>
+            </button>
+        </div>
+        
+        <div class="relative">
+            <button class="px-4 py-2 bg-gray-800 rounded-md flex items-center space-x-2">
+                <span>Difficulty</span>
+                <i class="fas fa-chevron-down text-sm"></i>
+            </button>
+        </div>
+        
+        <div class="relative">
+            <button class="px-4 py-2 bg-gray-800 rounded-md flex items-center space-x-2">
+                <span>Status</span>
+                <i class="fas fa-chevron-down text-sm"></i>
+            </button>
+        </div>
+        
+        <div class="relative">
+            <button class="px-4 py-2 bg-gray-800 rounded-md flex items-center space-x-2">
+                <span>Tags</span>
+                <i class="fas fa-chevron-down text-sm"></i>
+            </button>
+        </div>
+        
+        <form method="GET" action="{% url 'problem_list' %}" class="relative flex-grow">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <i class="fas fa-search text-gray-500"></i>
+            </div>
+            <input
+                type="text"
+                name="search"
+                class="block w-full pl-10 pr-3 py-2 bg-gray-800 rounded-md focus:outline-none"
+                placeholder="Search questions"
+                value="{{ request.GET.search|default:'' }}"
+            >
+        </form>
+        
+        <button class="p-2 bg-gray-800 rounded-md">
+            <i class="fas fa-cog"></i>
+        </button>
+        
+        <button class="p-2 bg-green-600 rounded-md">
+            <i class="fas fa-filter"></i>
+        </button>
+    </div>
+    
+    <!-- Problem Table -->
+    <div class="flex-grow px-4 py-2 overflow-auto">
+        <table class="min-w-full">
+            <thead class="border-b border-gray-700">
+                <tr>
+                    <th class="px-4 py-2 text-left">Status</th>
+                    <th class="px-4 py-2 text-left">Title</th>
+                    <th class="px-4 py-2 text-left">Solution</th>
+                    <th class="px-4 py-2 text-left">Acceptance</th>
+                    <th class="px-4 py-2 text-left">Difficulty</th>
+                    <th class="px-4 py-2 text-left">Frequency</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for problem in problems %}
+                <tr class="border-b border-gray-800 hover:bg-gray-800">
+                    <td class="px-4 py-4">
+                        {% if user_problems|get_item:problem.id %}
+                        <i class="fas fa-check-circle text-green-500"></i>
+                        {% endif %}
+                    </td>
+                    <td class="px-4 py-4">
+                        <div class="flex items-center">
+                            <span class="mr-2">{{ problem.id }}.</span>
+                            <a href="{% url 'problem_detail' problem.id %}" class="text-blue-400 hover:underline">{{ problem.title }}</a>
+                        </div>
+                    </td>
+                    <td class="px-4 py-4">
+                        <div class="w-6 h-6 bg-gray-700 rounded-md flex items-center justify-center text-xs">
+                            {% if problem.id|divisibleby:2 %}
+                            <span class="text-blue-400">&lt;&gt;</span>
+                            {% else %}
+                            <span class="text-purple-400">&lt;/&gt;</span>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td class="px-4 py-4">{{ problem.acceptance_rate }}%</td>
+                    <td class="px-4 py-4 
+                        {% if problem.difficulty.name == 'Easy' %}
+                        text-teal-500
+                        {% elif problem.difficulty.name == 'Medium' %}
+                        text-yellow-500
+                        {% else %}
+                        text-red-500
+                        {% endif %}
+                    ">
+                        {{ problem.difficulty.name }}
+                    </td>
+                    <td class="px-4 py-4">
+                        <div class="w-32 bg-gray-700 rounded-full h-2.5">
+                            <div 
+                                class="bg-yellow-500 h-2.5 rounded-full" 
+                                style="width: {{ problem.frequency }}%"
+                            ></div>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Right Sidebar -->
+    <div class="absolute top-0 right-0 w-64 h-full bg-gray-900 border-l border-gray-700 p-4 overflow-y-auto">
+        <div class="mb-6">
+            <h2 class="text-lg font-medium mb-4">Ongoing Study Plan</h2>
+            {% for plan in study_plans %}
+            <div class="mb-4">
+                <div class="flex items-center mb-2">
+                    <div class="w-12 h-12 bg-blue-900 rounded-lg mr-3 flex items-center justify-center">
+                        {% if forloop.first %}
+                        <div class="text-blue-400 text-2xl">⦿</div>
+                        {% else %}
+                        <div class="rounded-full w-6 h-6 bg-gray-700"></div>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <div class="font-medium">{{ plan.name }}</div>
+                        {% if plan.progress > 0 %}
+                        <div class="w-32 bg-gray-700 h-1.5 rounded-full mt-1">
+                            <div 
+                                class="bg-blue-500 h-1.5 rounded-full" 
+                                style="width: {{ plan.progress }}%"
+                            ></div>
+                        </div>
+                        {% endif %}
+                        {% if plan.description %}
+                        <div class="text-sm text-gray-500 mt-1">{{ plan.description }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-gray-500">No active study plans.</p>
+            {% endfor %}
+        </div>
+        
+        <div>
+            <h2 class="text-lg font-medium mb-2">Trending Companies</h2>
+            <div class="relative mb-3">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <i class="fas fa-search text-gray-500"></i>
+                </div>
+                <input
+                    type="text"
+                    class="block w-full pl-10 pr-3 py-2 bg-gray-800 rounded-md focus:outline-none text-sm"
+                    placeholder="Search for a company..."
+                >
+            </div>
+            <div class="flex flex-wrap gap-2">
+                {% for company in companies %}
+                <div class="bg-gray-800 rounded-full px-3 py-1 text-sm flex items-center">
+                    <span>{{ company.name }}</span>
+                    <span class="ml-1 px-2 py-0.5 bg-yellow-600 rounded-full text-xs">
+                        {{ company.count }}
+                    </span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

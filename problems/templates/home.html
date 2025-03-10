@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="min-h-screen flex flex-col items-center justify-center">
+    <h1 class="text-4xl font-bold mb-6">Django LeetCode Clone</h1>
+    <a href="{% url 'problem_list' %}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+        Browse Problems
+    </a>
+</div>
+
+{% endblock %}
